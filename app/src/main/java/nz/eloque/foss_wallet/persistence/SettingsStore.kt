@@ -18,6 +18,7 @@ private const val BARCODE_POSITION = "barcodePosition"
 private const val PASS_VIEW_BRIGHTNESS = "passViewBrightness"
 private const val SORT_OPTION = "walletViewSortOption"
 private const val DELETE_CONFIRMATION_ENABLED = "deleteConfirmationEnabled"
+private const val LOCATION_REMINDERS_ENABLED = "locationRemindersEnabled"
 
 sealed class BarcodePosition(
     val alignment: Alignment,
@@ -77,4 +78,8 @@ class SettingsStore
         fun deleteConfirmationEnabled(): Boolean = prefs.getBoolean(DELETE_CONFIRMATION_ENABLED, true)
 
         fun setDeleteConfirmationEnabled(enabled: Boolean) = prefs.edit { putBoolean(DELETE_CONFIRMATION_ENABLED, enabled) }
+
+        fun locationRemindersEnabled(): Boolean = prefs.getBoolean(LOCATION_REMINDERS_ENABLED, false)
+
+        fun setLocationRemindersEnabled(enabled: Boolean) = prefs.edit { putBoolean(LOCATION_REMINDERS_ENABLED, enabled) }
     }

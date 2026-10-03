@@ -150,6 +150,7 @@ dependencies {
 
     // (Java only)
     implementation(libs.androidx.work.runtime)
+    implementation(libs.play.services.location)
     // Kotlin + coroutines
     implementation(libs.androidx.work.runtime.ktx)
 
