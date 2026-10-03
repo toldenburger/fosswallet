@@ -109,6 +109,22 @@ class PassStore
 
         suspend fun toggleLegacyRendering(pass: Pass) = passRepository.toggleLegacyRendering(pass)
 
+        suspend fun setLocationReminder(
+            pass: Pass,
+            enabled: Boolean,
+        ) {
+            passRepository.setLocationReminder(pass, enabled)
+            locationReminderManager.refresh()
+        }
+
+        suspend fun setLocationRadius(
+            pass: Pass,
+            meters: Int,
+        ) {
+            passRepository.setLocationRadius(pass, meters)
+            locationReminderManager.refresh()
+        }
+
         suspend fun group(passes: Set<Pass>): PassGroup {
             val group = passRepository.insert(PassGroup())
             passes.forEach { passRepository.associate(it, group) }

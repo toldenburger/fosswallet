@@ -41,14 +41,17 @@ class LocationReminderManager
                 passRepository
                     .all()
                     .first()
-                    .filterNot { it.metadata.archived }
+                    .filterNot { it.metadata.archived || !it.metadata.locationReminder }
                     .flatMap { passWithMetadata ->
                         passWithMetadata.pass.locations.mapIndexed { index, location ->
                             Geofence
                                 .Builder()
                                 .setRequestId("${passWithMetadata.pass.id}$REQUEST_ID_SEPARATOR$index")
-                                .setCircularRegion(location.latitude, location.longitude, RADIUS_METERS)
-                                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                .setCircularRegion(
+                                    location.latitude,
+                                    location.longitude,
+                                    passWithMetadata.metadata.locationRadiusMeters.toFloat(),
+                                ).setExpirationDuration(Geofence.NEVER_EXPIRE)
                                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
                                 .build()
                         }
@@ -96,10 +99,10 @@ class LocationReminderManager
         companion object {
             const val TAG = "LocationReminderManager"
             const val REQUEST_ID_SEPARATOR = "#"
-            const val RADIUS_METERS = 150f
 
             // Play services allows at most 100 geofences per app.
             const val MAX_GEOFENCES = 100
+            val RADIUS_OPTIONS_METERS = listOf(100, 150, 250, 500, 1000)
             private const val REQUEST_CODE = 4242
         }
     }

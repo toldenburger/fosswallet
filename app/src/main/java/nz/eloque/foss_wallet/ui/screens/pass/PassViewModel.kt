@@ -65,6 +65,16 @@ class PassViewModel
 
         fun toggleLegacyRendering(pass: Pass) = viewModelScope.launch(Dispatchers.IO) { passStore.toggleLegacyRendering(pass) }
 
+        fun setLocationReminder(
+            pass: Pass,
+            enabled: Boolean,
+        ) = viewModelScope.launch(Dispatchers.IO) { passStore.setLocationReminder(pass, enabled) }
+
+        fun setLocationRadius(
+            pass: Pass,
+            meters: Int,
+        ) = viewModelScope.launch(Dispatchers.IO) { passStore.setLocationRadius(pass, meters) }
+
         fun attach(
             pass: Pass,
             name: String,
