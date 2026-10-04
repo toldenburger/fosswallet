@@ -1,6 +1,10 @@
 package nz.eloque.foss_wallet.ui.screens.settings
 
+import android.Manifest
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -55,6 +59,26 @@ fun SettingsView(settingsViewModel: SettingsViewModel) {
     val passFlow = settingsViewModel.passFlow
     val passes by remember(passFlow) { passFlow.map { it } }.collectAsState(listOf())
 
+    // Android requires background location to be requested separately, after foreground location is granted.
+    val backgroundLocationLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                settingsViewModel.enableLocationReminders(true)
+            } else {
+                Toast.makeText(context, R.string.location_reminders_permission_denied, Toast.LENGTH_LONG).show()
+            }
+        }
+    val foregroundLocationLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
+            if (results[Manifest.permission.ACCESS_FINE_LOCATION] != true) {
+                Toast.makeText(context, R.string.location_reminders_permission_denied, Toast.LENGTH_LONG).show()
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                backgroundLocationLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            } else {
+                settingsViewModel.enableLocationReminders(true)
+            }
+        }
+
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { settingsViewModel.refresh() }
 
     Column(
@@ -90,6 +114,23 @@ fun SettingsView(settingsViewModel: SettingsViewModel) {
                     }
                 },
                 enabled = settings.value.enableSync,
+            )
+        }
+        Section(
+            heading = stringResource(R.string.location_reminders),
+        ) {
+            SettingsSwitch(
+                title = stringResource(R.string.location_reminders_enable),
+                checked = settings.value.locationReminders,
+                onCheckedChange = { enabled ->
+                    if (enabled) {
+                        foregroundLocationLauncher.launch(
+                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                        )
+                    } else {
+                        coroutineScope.launch(Dispatchers.IO) { settingsViewModel.enableLocationReminders(false) }
+                    }
+                },
             )
         }
         Section(

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nz.eloque.foss_wallet.api.UpdateScheduler
+import nz.eloque.foss_wallet.location.LocationReminderManager
 import nz.eloque.foss_wallet.persistence.BarcodePosition
 import nz.eloque.foss_wallet.persistence.PassStore
 import nz.eloque.foss_wallet.persistence.SettingsStore
@@ -23,6 +24,7 @@ data class SettingsUiState(
     val barcodePosition: BarcodePosition = BarcodePosition.Center,
     val increasePassViewBrightness: Boolean = false,
     val askBeforeDelete: Boolean = true,
+    val locationReminders: Boolean = false,
 )
 
 @HiltViewModel
@@ -33,6 +35,7 @@ class SettingsViewModel
         private val settingsStore: SettingsStore,
         private val passStore: PassStore,
         private val updateScheduler: UpdateScheduler,
+        private val locationReminderManager: LocationReminderManager,
     ) : AndroidViewModel(application) {
         private val _uiState = MutableStateFlow(SettingsUiState())
         val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
@@ -51,6 +54,7 @@ class SettingsViewModel
                         barcodePosition = settingsStore.barcodePosition(),
                         increasePassViewBrightness = settingsStore.increasePassViewBrightness(),
                         askBeforeDelete = settingsStore.deleteConfirmationEnabled(),
+                        locationReminders = settingsStore.locationRemindersEnabled(),
                     )
             }
         }
@@ -86,5 +90,13 @@ class SettingsViewModel
         fun setAskBeforeDelete(enabled: Boolean) {
             settingsStore.setDeleteConfirmationEnabled(enabled)
             update()
+        }
+
+        fun enableLocationReminders(enabled: Boolean) {
+            settingsStore.setLocationRemindersEnabled(enabled)
+            viewModelScope.launch {
+                locationReminderManager.refresh()
+                update()
+            }
         }
     }

@@ -144,6 +144,8 @@ fun PassScreen(
                             barcodePosition = passViewModel.barcodePosition(),
                             scrollBehavior = scrollBehavior,
                             onRenderingChange = { passViewModel.toggleLegacyRendering(pagePass.pass) },
+                            onLocationReminderChange = { passViewModel.setLocationReminder(pagePass.pass, it) },
+                            onLocationRadiusChange = { passViewModel.setLocationRadius(pagePass.pass, it) },
                             onAttachmentAdd = { name, bytes -> passViewModel.attach(pagePass.pass, name, bytes) },
                             onAttachmentDelete = { attachment -> passViewModel.delete(attachment) },
                         )

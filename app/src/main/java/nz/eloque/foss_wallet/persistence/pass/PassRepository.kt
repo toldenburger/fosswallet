@@ -118,6 +118,16 @@ class PassRepository
 
         suspend fun toggleLegacyRendering(pass: Pass) = passDao.toggleLegacyRendering(pass.id)
 
+        suspend fun setLocationReminder(
+            pass: Pass,
+            enabled: Boolean,
+        ) = passDao.setLocationReminder(pass.id, enabled)
+
+        suspend fun setLocationRadius(
+            pass: Pass,
+            meters: Int,
+        ) = passDao.setLocationRadius(pass.id, meters)
+
         suspend fun archiveExpiredPasses(now: Instant = Instant.now()) {
             passDao
                 .nonArchivedWithExpirationDate()

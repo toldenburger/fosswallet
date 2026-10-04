@@ -12,6 +12,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Attachment
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -26,9 +29,11 @@ import androidx.compose.ui.unit.dp
 import nz.eloque.compose_kit.components.Section
 import nz.eloque.compose_kit.effect.ForceOrientation
 import nz.eloque.compose_kit.effect.Orientation
+import nz.eloque.compose_kit.input.ComboBox
 import nz.eloque.compose_kit.picker.FilePicker
 import nz.eloque.compose_kit.settings.SettingsSwitch
 import nz.eloque.foss_wallet.R
+import nz.eloque.foss_wallet.location.LocationReminderManager
 import nz.eloque.foss_wallet.model.Attachment
 import nz.eloque.foss_wallet.model.LocalizedPassWithTags
 import nz.eloque.foss_wallet.model.Pass
@@ -54,6 +59,8 @@ fun PassView(
     onTagCreate: (Tag) -> Unit,
     barcodePosition: BarcodePosition,
     onRenderingChange: (Boolean) -> Unit,
+    onLocationReminderChange: (Boolean) -> Unit,
+    onLocationRadiusChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
 ) {
@@ -92,6 +99,31 @@ fun PassView(
                     checked = metadata.renderLegacy,
                     onCheckedChange = onRenderingChange,
                 )
+            }
+        }
+        Card {
+            if (pass.locations.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.location_reminder_no_location),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(16.dp),
+                )
+            } else {
+                SettingsSwitch(
+                    title = stringResource(R.string.location_reminder_pass),
+                    checked = metadata.locationReminder,
+                    onCheckedChange = onLocationReminderChange,
+                )
+                if (metadata.locationReminder) {
+                    HorizontalDivider()
+                    ComboBox(
+                        title = stringResource(R.string.location_reminder_radius),
+                        options = LocationReminderManager.RADIUS_OPTIONS_METERS,
+                        selectedOption = metadata.locationRadiusMeters,
+                        onOptionSelected = onLocationRadiusChange,
+                        optionLabel = { context.getString(R.string.location_reminder_radius_option, it) },
+                    )
+                }
             }
         }
         Section(stringResource(R.string.attachments)) {
@@ -178,6 +210,8 @@ private fun PassPreview() {
         onTagCreate = {},
         barcodePosition = BarcodePosition.Center,
         onRenderingChange = {},
+        onLocationReminderChange = {},
+        onLocationRadiusChange = {},
         onAttachmentAdd = { _, _ -> },
         onAttachmentDelete = {},
     )

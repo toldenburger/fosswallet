@@ -37,6 +37,15 @@
     <string name="ungroup">Ungroup passes</string>
     <string name="passes">Passes</string>
     <string name="sync_interval">Pass update interval (min)</string>
+    <string name="location_reminders">Location reminders</string>
+    <string name="location_reminders_enable">Show passes when near their location</string>
+    <string name="location_reminders_channel">Location reminders</string>
+    <string name="location_reminder_text">You\'re near a location for this pass</string>
+    <string name="location_reminders_permission_denied">Location access is needed to show passes near their location</string>
+    <string name="location_reminder_pass">Remind me near this location</string>
+    <string name="location_reminder_radius">Radius</string>
+    <string name="location_reminder_radius_option">%d m</string>
+    <string name="location_reminder_no_location">This pass has no location, so location reminders are not available</string>
     <string name="enable">Enable</string>
     <string name="search">Search</string>
     <string name="add_shortcut">Add shortcut</string>

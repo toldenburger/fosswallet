@@ -9,6 +9,7 @@ import nz.eloque.foss_wallet.api.PassbookApi
 import nz.eloque.foss_wallet.api.UpdateContent
 import nz.eloque.foss_wallet.api.UpdateResult
 import nz.eloque.foss_wallet.api.UpdateScheduler
+import nz.eloque.foss_wallet.location.LocationReminderManager
 import nz.eloque.foss_wallet.model.Attachment
 import nz.eloque.foss_wallet.model.Pass
 import nz.eloque.foss_wallet.model.PassGroup
@@ -33,6 +34,7 @@ class PassStore
         private val localizationRepository: PassLocalizationRepository,
         private val updateScheduler: UpdateScheduler,
         private val shortcutService: ShortcutService,
+        private val locationReminderManager: LocationReminderManager,
     ) {
         fun allPasses() = passRepository.all().map { passes -> passes.map { it.applyLocalization(Locale.getDefault().language) } }
 
@@ -85,9 +87,15 @@ class PassStore
             }
         }
 
-        suspend fun archive(pass: Pass) = passRepository.archive(pass)
+        suspend fun archive(pass: Pass) {
+            passRepository.archive(pass)
+            locationReminderManager.refresh()
+        }
 
-        suspend fun unarchive(pass: Pass) = passRepository.unarchive(pass)
+        suspend fun unarchive(pass: Pass) {
+            passRepository.unarchive(pass)
+            locationReminderManager.refresh()
+        }
 
         suspend fun tag(
             pass: Pass,
@@ -101,6 +109,22 @@ class PassStore
 
         suspend fun toggleLegacyRendering(pass: Pass) = passRepository.toggleLegacyRendering(pass)
 
+        suspend fun setLocationReminder(
+            pass: Pass,
+            enabled: Boolean,
+        ) {
+            passRepository.setLocationReminder(pass, enabled)
+            locationReminderManager.refresh()
+        }
+
+        suspend fun setLocationRadius(
+            pass: Pass,
+            meters: Int,
+        ) {
+            passRepository.setLocationRadius(pass, meters)
+            locationReminderManager.refresh()
+        }
+
         suspend fun group(passes: Set<Pass>): PassGroup {
             val group = passRepository.insert(PassGroup())
             passes.forEach { passRepository.associate(it, group) }
@@ -109,6 +133,7 @@ class PassStore
 
         suspend fun delete(pass: Pass) {
             passRepository.delete(pass)
+            locationReminderManager.refresh()
             updateScheduler.cancelUpdate(pass)
             shortcutService.disable(pass)
         }
@@ -136,9 +161,13 @@ class PassStore
                         )
                     }.forEach { localizationRepository.insert(it) }
             }
+            locationReminderManager.refresh()
         }
 
-        suspend fun archiveExpiredPasses() = passRepository.archiveExpiredPasses()
+        suspend fun archiveExpiredPasses() {
+            passRepository.archiveExpiredPasses()
+            locationReminderManager.refresh()
+        }
 
         suspend fun deleteGroup(groupId: Long) = passRepository.deleteGroup(groupId)
 

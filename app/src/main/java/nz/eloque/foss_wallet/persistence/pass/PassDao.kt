@@ -142,6 +142,18 @@ interface PassDao {
     )
     suspend fun toggleLegacyRendering(passId: String)
 
+    @Query("UPDATE PassMetadata SET locationReminder = :enabled WHERE passId = :passId")
+    suspend fun setLocationReminder(
+        passId: String,
+        enabled: Boolean,
+    )
+
+    @Query("UPDATE PassMetadata SET locationRadiusMeters = :meters WHERE passId = :passId")
+    suspend fun setLocationRadius(
+        passId: String,
+        meters: Int,
+    )
+
     @Query(
         """
         SELECT p.*

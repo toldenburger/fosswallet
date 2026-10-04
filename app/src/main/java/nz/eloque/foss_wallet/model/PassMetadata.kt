@@ -1,5 +1,6 @@
 package nz.eloque.foss_wallet.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -32,4 +33,9 @@ data class PassMetadata(
     val archived: Boolean = false,
     val autoArchive: Boolean = true,
     val renderLegacy: Boolean = false,
+    /** Only has an effect for passes that have a location. */
+    @ColumnInfo(defaultValue = "1")
+    val locationReminder: Boolean = true,
+    @ColumnInfo(defaultValue = "150")
+    val locationRadiusMeters: Int = 150,
 )
